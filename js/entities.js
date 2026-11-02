@@ -220,6 +220,7 @@ class Player {
     }
     g.shake(11);
     g.flashScreen(0.35, [255, 60, 80]);
+    g.haptic(35);   // 受伤：最有存在感的一次震动
     g.addDamageText(this.cx, this.y + 6, Math.round(dmg), 'player-hurt', false);
     SFX.hurt();
 
@@ -709,7 +710,7 @@ class Monster {
       total, element || 'arcane', crit
     );
     g.burst(this.cx + rand(-10, 10), this.cy + rand(-14, 6), ELEMENT_COLORS[element] || ELEMENT_COLORS.arcane, crit ? 10 : 5, 190, 0.5);
-    if (crit) SFX.crit(); else if (chance(0.6)) SFX.hit();
+    if (crit) { SFX.crit(); g.haptic(16); } else if (chance(0.6)) SFX.hit();
 
     /* 元素附着 */
     if (element === 'fire') {
@@ -1367,7 +1368,7 @@ class Boss {
 
     g.addDamageText(this.cx + rand(-30, 30), this.y + rand(30, 70), total, element || 'arcane', crit);
     g.burst(this.cx + rand(-30, 30), this.cy + rand(-30, 30), ELEMENT_COLORS[element] || ELEMENT_COLORS.arcane, crit ? 12 : 6, 220, 0.6);
-    if (crit) SFX.crit();
+    if (crit) { SFX.crit(); g.haptic(16); }
 
     if (element === 'fire') { s.burn = 3; s.burnDmg = Math.max(s.burnDmg * 0.5, dmg * 0.16); s.burnTick = 0.4; }
     else if (element === 'ice') s.freeze = 1.4;
@@ -1384,6 +1385,7 @@ class Boss {
       g.ring(this.cx, this.cy, R.radius, R.color);
       g.shake(10);
       g.hitstop = Math.max(g.hitstop, 0.05);
+      g.haptic([12, 22, 34]);   // 元素反应：三段短震，有节奏感
       SFX.reaction();
       g.player.mp = Math.min(g.player.maxMp, g.player.mp + 12);
       g.reactionCount = (g.reactionCount || 0) + 1;

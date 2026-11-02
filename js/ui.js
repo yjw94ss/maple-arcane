@@ -50,7 +50,18 @@ const UI = {
     const bar = touch ? document.getElementById('touchSkills') : this.el.skillbar;
     if (!bar) return;
     bar.innerHTML = '';
-    SKILLS.forEach((s) => {
+
+    // 触摸端按“右手拇指够得到的距离”排序，而不是按键盘 1-9 的编号。
+    // 数组是从右往左的优先级：最常用的魔法弹贴右手，长冷却的陨石/治愈放最左。
+    const TOUCH_ORDER = ['bolt', 'fire', 'ice', 'thunder', 'teleport', 'guard', 'meditate', 'meteor', 'heal'];
+    let list = SKILLS;
+    if (touch) {
+      list = TOUCH_ORDER.slice().reverse()
+        .map((id) => SKILLS.find((s) => s.id === id))
+        .filter(Boolean);
+    }
+
+    list.forEach((s) => {
       const slot = document.createElement('div');
       slot.className = 'slot' + (touch ? ' touch' : '');
       slot.style.setProperty('--c', s.color);

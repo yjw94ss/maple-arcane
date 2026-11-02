@@ -518,11 +518,13 @@ body.is-touch .tc-pause{
 }
 
 /* 技能条：底部横排，两侧留给方向键和跳跃键 */
+/* 技能条贴右侧：右手拇指从跳跃键横移的距离从 ~560px 缩到 ~80px */
 body.is-touch .tc-skills{
   position:fixed; bottom:12px;
-  left:calc(156px + env(safe-area-inset-left, 0px));
-  right:calc(100px + env(safe-area-inset-right, 0px));
-  display:flex; align-items:flex-end; justify-content:center; gap:5px;
+  left:auto;
+  right:calc(98px + env(safe-area-inset-right, 0px));
+  width:min(490px, calc(100vw - 268px));
+  display:flex; align-items:flex-end; justify-content:flex-end; gap:5px;
   pointer-events:none;
 }
 body.is-touch .tc-skills .slot{

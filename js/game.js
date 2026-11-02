@@ -99,6 +99,20 @@ const TOUCH = (() => {
   return (coarse && noHover) || (touchPts && noHover) || (touchPts && !fine);
 })();
 
+/* ---------------------------------------------------------
+   触觉反馈
+   只有支持 navigator.vibrate 的设备才有（Android Chrome 有，iOS Safari 没有，静默跳过）
+   --------------------------------------------------------- */
+const HAPTIC_ON = TOUCH && typeof navigator.vibrate === 'function';
+GAME._hapticT = 0;
+GAME.haptic = function (pattern) {
+  if (!HAPTIC_ON) return;
+  const now = performance.now();
+  if (now - this._hapticT < 45) return;   // 节流：连击时别震成一团
+  this._hapticT = now;
+  try { navigator.vibrate(pattern); } catch (e) { /* 忽略 */ }
+};
+
 function applyDeviceClass() {
   const portrait = window.innerHeight > window.innerWidth;
   document.body.classList.toggle('is-touch', TOUCH);
@@ -316,6 +330,7 @@ GAME.onBossDeath = function (b) {
 GAME.onLevelUp = function () {
   const p = this.player;
   SFX.levelUp();
+  this.haptic([25, 45, 70]);   // 升级：一段上扬的震动
   UI.showLevelUp(p.level);
   this.ring(p.cx, p.cy, 160, [255, 220, 140], 0.9);
   this.ring(p.cx, p.cy, 110, [200, 170, 255], 0.7);
