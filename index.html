@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
+<title>枫之魔法师 · Maple Arcane</title>
+<link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+<div id="app">
+  <div id="stage">
+    <div id="tint"></div>
+    <canvas id="game" width="1280" height="720"></canvas>
+
+    <!-- ================= HUD ================= -->
+    <div id="hud" class="hud hidden">
+      <div class="hud-top">
+        <div class="region-tag">
+          <span class="region-dot"></span>
+          <span id="regionName">枫叶草原</span>
+          <span class="region-sub" id="regionSub">推荐 Lv.1</span>
+        </div>
+
+        <div class="boss-panel hidden" id="bossPanel">
+          <div class="boss-head">
+            <span class="boss-name" id="bossName">暗影魔君</span>
+            <span class="boss-hp-text" id="bossHpText">3000 / 3000</span>
+          </div>
+          <div class="boss-track"><div class="boss-fill" id="bossFill"></div></div>
+        </div>
+
+        <div class="hud-right">
+          <div class="combo-box hidden" id="comboBox">
+            <div class="combo-main"><span class="combo-num" id="comboNum">0</span><span class="combo-label">元素连携</span></div>
+            <div class="combo-sub">伤害倍率 <b id="comboMult">x1.00</b></div>
+            <div class="combo-bar"><i id="comboBar"></i></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="hud-bottom">
+        <div class="vitals">
+          <div class="avatar">
+            <div class="avatar-gem" id="avatarGem">✦</div>
+            <div class="avatar-info">
+              <b id="levelBadge">1</b>
+              <span>魔法师</span>
+            </div>
+          </div>
+          <div class="bars">
+            <div class="bar-row">
+              <span class="bar-label hp-label">HP</span>
+              <div class="bar-track"><div class="bar-ghost hp" id="hpGhost"></div><div class="bar-fill hp" id="hpFill"></div></div>
+              <span class="bar-num" id="hpText">240/240</span>
+            </div>
+            <div class="bar-row">
+              <span class="bar-label mp-label">MP</span>
+              <div class="bar-track"><div class="bar-fill mp" id="mpFill"></div></div>
+              <span class="bar-num" id="mpText">180/180</span>
+            </div>
+          </div>
+        </div>
+        <div class="skillbar" id="skillbar"></div>
+      </div>
+
+      <div class="exp-strip">
+        <div class="exp-fill" id="expFill"></div>
+        <span class="exp-text" id="expText">EXP 0 / 60</span>
+      </div>
+    </div>
+
+    <div id="regionBanner" class="region-banner"></div>
+    <div id="levelBanner" class="level-banner hidden"><span>LEVEL UP</span><b id="levelBannerNum">2</b></div>
+    <div id="toasts" class="toasts"></div>
+    <div id="hint" class="hint">ESC 暂停 · H 技能说明</div>
+
+    <!-- ================= 开始界面 ================= -->
+    <div id="startScreen" class="overlay start-screen">
+      <div class="aurora"></div>
+      <div class="starfield" id="starfield"></div>
+      <div class="start-inner">
+        <div class="eyebrow">MAPLE ARCANE · 魔法师篇</div>
+        <h1 class="title">枫之<span>魔法师</span></h1>
+        <p class="subtitle">以元素为笔，在枫叶大陆写下属于奥术的传说</p>
+
+        <div class="class-card">
+          <div class="class-icon">✦</div>
+          <div class="class-info">
+            <h3>魔法师 <em>Mage</em></h3>
+            <p>远程元素输出 · 极高爆发 · 依赖走位与技能循环</p>
+            <div class="chips">
+              <span class="c-ice">冰霜</span><span class="c-fire">烈焰</span><span class="c-thunder">雷霆</span><span class="c-arcane">元素连携</span>
+            </div>
+          </div>
+        </div>
+
+        <button id="startBtn" class="btn-primary"><span class="btn-label">开始冒险</span><span class="btn-key">ENTER</span></button>
+
+        <div class="touch-tip">◀ ▶ 移动 · ⤒ 跳跃 · 底部点技能（按住可连发）</div>
+
+        <div class="controls-grid">
+          <div class="ctrl"><kbd>A</kbd><kbd>D</kbd><span>移动</span></div>
+          <div class="ctrl"><kbd>空格</kbd><span>跳跃</span></div>
+          <div class="ctrl"><kbd>1</kbd><span>魔法弹</span></div>
+          <div class="ctrl"><kbd>2</kbd><span>火毒术</span></div>
+          <div class="ctrl"><kbd>3</kbd><span>冰霜箭</span></div>
+          <div class="ctrl"><kbd>4</kbd><span>雷电术</span></div>
+          <div class="ctrl"><kbd>5</kbd><span>瞬间移动</span></div>
+          <div class="ctrl"><kbd>6</kbd><kbd>7</kbd><span>增益</span></div>
+          <div class="ctrl"><kbd>8</kbd><span>陨石术</span></div>
+          <div class="ctrl"><kbd>9</kbd><span>治愈</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ================= 暂停 ================= -->
+    <div id="pauseScreen" class="overlay dim hidden">
+      <div class="panel">
+        <h2>暂停</h2>
+        <p class="panel-sub">冒险者，风还在吹。</p>
+        <div class="panel-actions">
+          <button id="resumeBtn" class="btn-primary small">继续冒险</button>
+          <button id="pauseHelpBtn" class="btn-ghost">技能说明</button>
+          <button id="restartBtn" class="btn-ghost">重新开始</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ================= 帮助 ================= -->
+    <div id="helpScreen" class="overlay dim hidden">
+      <div class="panel wide">
+        <h2>魔法师手册</h2>
+        <div class="help-cols">
+          <div class="help-col">
+            <h4>技能</h4>
+            <div id="helpSkills" class="help-skills"></div>
+          </div>
+          <div class="help-col">
+            <h4>元素反应 · 连携核心</h4>
+            <div class="help-reactions">
+              <div class="reaction"><span class="rx-fire">灼烧</span><em>+</em><span class="rx-ice">冰霜</span><b>蒸汽爆裂</b><i>2.0× 范围伤害</i></div>
+              <div class="reaction"><span class="rx-ice">冰霜</span><em>+</em><span class="rx-thunder">感电</span><b>霜雷爆</b><i>2.5× 碎裂爆发</i></div>
+              <div class="reaction"><span class="rx-thunder">感电</span><em>+</em><span class="rx-fire">烈焰</span><b>燎原</b><i>1.9× 连锁扩散</i></div>
+            </div>
+            <h4>连携倍率</h4>
+            <p class="help-p">1.6 秒内连续命中不同元素，伤害倍率持续攀升（最高 <b>x1.9</b>）；触发元素反应额外 +0.2 倍率并回复法力。</p>
+            <h4>操作</h4>
+            <p class="help-p">A / D 移动 · 空格跳跃 · 1–9 释放技能（可长按连发）· ESC 暂停 · H 关闭手册</p>
+          </div>
+        </div>
+        <button id="closeHelpBtn" class="btn-primary small">明白了</button>
+      </div>
+    </div>
+
+    <!-- ================= 失败 ================= -->
+    <div id="deadScreen" class="overlay dim hidden">
+      <div class="panel">
+        <h2 class="danger">魔力耗尽</h2>
+        <p class="panel-sub">你的意识沉入枫叶的阴影中……</p>
+        <div class="stat-grid" id="deadStats"></div>
+        <div class="panel-actions">
+          <button id="retryBtn" class="btn-primary small">再次挑战</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ================= 通关 ================= -->
+    <div id="winScreen" class="overlay dim hidden">
+      <div class="panel">
+        <h2 class="gold">暗影已散</h2>
+        <p class="panel-sub">枫叶大陆重新迎来晨光，而你已是传说本身。</p>
+        <div class="stat-grid" id="winStats"></div>
+        <div class="panel-actions">
+          <button id="againBtn" class="btn-primary small">再战一次</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= 移动端触摸层（fixed，不受 stage 缩放影响） ================= -->
+  <div id="touchUI" class="touch-ui">
+    <div class="tc-pad">
+      <button class="tc-btn tc-dir" id="tcLeft" data-hold="KeyA" aria-label="左移">◀</button>
+      <button class="tc-btn tc-dir" id="tcRight" data-hold="KeyD" aria-label="右移">▶</button>
+    </div>
+    <div class="tc-skills" id="touchSkills"></div>
+    <button class="tc-btn tc-jump" id="tcJump" aria-label="跳跃">⤒</button>
+    <button class="tc-btn tc-pause" id="tcMenu" aria-label="暂停">❚❚</button>
+  </div>
+
+  <!-- 竖屏提示 -->
+  <div id="rotateHint" class="rotate-hint">
+    <div class="rh-icon">⟳</div>
+    <b>请把手机横过来</b>
+    <span>本作是横版游戏，横屏才能开始冒险</span>
+  </div>
+</div>
+
+<script src="js/utils.js"></script>
+<script src="js/config.js"></script>
+<script src="js/audio.js"></script>
+<script src="js/world.js"></script>
+<script src="js/entities.js"></script>
+<script src="js/skills.js"></script>
+<script src="js/ui.js"></script>
+<script src="js/game.js"></script>
+</body>
+</html>
